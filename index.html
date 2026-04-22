@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AI Loan Assistant — Modern UI</title>
+  <style>
+    :root{
+      --bg:#0f1724; /* deep night */
+      --card:#0b1220; /* card */
+      --glass: rgba(255,255,255,0.04);
+      --accent1: linear-gradient(135deg,#5eead4 0%,#60a5fa 100%);
+      --accent2: linear-gradient(135deg,#7c3aed 0%,#06b6d4 100%);
+      --muted: rgba(255,255,255,0.6);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,'Helvetica Neue',Arial}
+    body{background: radial-gradient(1000px 500px at 10% 10%, rgba(99,102,241,0.08), transparent), radial-gradient(800px 400px at 90% 90%, rgba(56,189,248,0.06), transparent), var(--bg);display:flex;align-items:center;justify-content:center;padding:24px}
+
+    .stage{width:100%;max-width:1080px;display:grid;grid-template-columns:360px 1fr;gap:28px}
+
+    /* Left panel: user / profile / quick actions */
+    .panel{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:14px;padding:18px;color:var(--muted);box-shadow:0 6px 30px rgba(2,6,23,0.6);backdrop-filter: blur(8px)}
+    .brand{display:flex;gap:12px;align-items:center;margin-bottom:12px}
+    .logo{width:48px;height:48px;border-radius:12px;background:var(--accent1);display:flex;align-items:center;justify-content:center;color:#062b1f;font-weight:700;font-size:18px;box-shadow:0 4px 18px rgba(96,165,250,0.12)}
+    .brand h1{margin:0;font-size:16px;color:#fff}
+    .brand p{margin:0;font-size:12px;color:var(--muted)}
+
+    .profile{display:flex;gap:12px;align-items:center;padding:10px;border-radius:10px;background:linear-gradient(90deg, rgba(255,255,255,0.02), transparent)}
+    .avatar{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,#6366f1,#06b6d4);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700}
+    .meta{flex:1}
+    .meta h3{margin:0;color:#fff;font-size:15px}
+    .meta p{margin:4px 0 0 0;font-size:12px;color:var(--muted)}
+
+    .quick{margin-top:14px}
+    .chips{display:flex;flex-wrap:wrap;gap:8px}
+    .chip{padding:8px 10px;border-radius:999px;background:var(--glass);font-size:13px;color:var(--muted);cursor:pointer;border:1px solid rgba(255,255,255,0.03)}
+    .chip:hover{transform:translateY(-3px)}
+
+    .info-card{margin-top:16px;padding:12px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01))}
+    .info-card h4{margin:0 0 8px 0;color:#fff;font-size:14px}
+    .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .info-item{font-size:13px;color:var(--muted)}
+
+    /* Right: Chat area */
+    .chat-wrap{display:flex;flex-direction:column;height:80vh}
+    .chat-header{display:flex;align-items:center;justify-content:space-between;padding:14px;background:linear-gradient(90deg, rgba(255,255,255,0.02), transparent);border-radius:12px;color:#fff}
+    .chat-title{display:flex;gap:12px;align-items:center}
+    .bot-dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(180deg,#34d399,#3b82f6);box-shadow:0 6px 18px rgba(59,130,246,0.18)}
+    .chat-body{flex:1;overflow:auto;padding:18px;display:flex;flex-direction:column;gap:12px}
+
+    .bubble{max-width:72%;padding:12px 14px;border-radius:12px;line-height:1.35;font-size:14px}
+    .bubble.bot{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));color:#e6eefc;align-self:flex-start;border-top-left-radius:4px}
+    .bubble.user{background:linear-gradient(180deg,#0ea5a5,#06b6d4);color:#02121a;align-self:flex-end;border-bottom-right-radius:4px}
+    .meta-small{font-size:12px;color:var(--muted);margin-top:6px}
+
+    .input-area{display:flex;gap:12px;padding:12px;margin-top:12px;background:transparent}
+    .input{flex:1;display:flex;gap:8px;align-items:center;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:10px;border-radius:12px}
+    .input input{flex:1;border:0;background:transparent;outline:none;color:#fff;padding:8px;font-size:14px}
+    .send{background:var(--accent2);border:none;padding:10px 14px;border-radius:10px;color:#fff;font-weight:600;cursor:pointer}
+    .send:active{transform:translateY(1px)}
+
+    .tiny{font-size:12px;color:var(--muted)}
+
+    /* typing indicator */
+    .typing{display:inline-flex;gap:4px;align-items:center}
+    .dot{width:6px;height:6px;border-radius:50%;background:#cbd5e1;opacity:0.9;animation:blink 1s infinite}
+    .dot:nth-child(2){animation-delay:0.2s}
+    .dot:nth-child(3){animation-delay:0.4s}
+    @keyframes blink{50%{opacity:0.25;transform:translateY(2px)}}
+
+    /* responsive */
+    @media (max-width:880px){.stage{grid-template-columns:1fr} .panel{order:2}}
+  </style>
+</head>
+<body>
+  <div class="stage">
+    <aside class="panel">
+      <div class="brand">
+        <div class="logo">LA</div>
+        <div>
+          <h1>Loan Assistant</h1>
+          <p class="tiny">AI-powered personal loan helper</p>
+        </div>
+      </div>
+
+      <div class="profile" id="profile">
+        <div class="avatar">LV</div>
+        <div class="meta">
+          <h3 id="pname">Guest</h3>
+          <p id="pphone">Not signed in</p>
+        </div>
+      </div>
+
+      <div class="quick">
+        <div class="chips">
+          <div class="chip" onclick="quick('personal')">Personal Loan</div>
+          <div class="chip" onclick="quick('apply')">Apply Now</div>
+          <div class="chip" onclick="quick('emi')">EMI Calculator</div>
+          <div class="chip" onclick="quick('salary slip')">Upload Salary Slip</div>
+        </div>
+
+        <div class="info-card">
+          <h4>Quick stats</h4>
+          <div class="info-grid">
+            <div class="info-item">Pre-approved: <strong id="prelimit">-</strong></div>
+            <div class="info-item">Credit score: <strong id="credit">-</strong></div>
+            <div class="info-item">City: <strong id="city">-</strong></div>
+            <div class="info-item">Salary: <strong id="salary">-</strong></div>
+          </div>
+        </div>
+
+      </div>
+    </aside>
+
+    <section class="chat-wrap">
+      <div class="chat-header">
+        <div class="chat-title"><div class="bot-dot"></div><div>
+          <div style="font-weight:600;color:#fff">Loan Assistance Bot</div>
+          <div class="tiny">Instant decisions • Personal loans</div>
+        </div></div>
+        <div class="tiny">Secure • Confidential</div>
+      </div>
+
+      <div class="chat-body" id="chat"></div>
+
+      <div class="input-area">
+        <div class="input">
+          <input id="txt" placeholder="Ask about loans, tenure, EMIs..." autocomplete="off" />
+          <div class="tiny" id="status"></div>
+        </div>
+        <button class="send" id="sendBtn">Send</button>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // Keep same chat logic: POST /chat with {id,msg} and expect {id,reply,link}
+    const chatEl = document.getElementById('chat')
+    const txt = document.getElementById('txt')
+    const sendBtn = document.getElementById('sendBtn')
+    const status = document.getElementById('status')
+    let cid = localStorage.getItem('loan_uid') || null
+
+    // helper to add messages
+    function addBubble(text, who='bot', small=false){
+      const wrap = document.createElement('div')
+      const b = document.createElement('div')
+      b.className = 'bubble '+(who==='bot'?'bot':'user')
+      b.innerText = text
+      wrap.appendChild(b)
+      if(small){
+        const m = document.createElement('div')
+        m.className='meta-small'
+        m.innerText = small
+        wrap.appendChild(m)
+      }
+      chatEl.appendChild(wrap)
+      chatEl.scrollTop = chatEl.scrollHeight
+      return b
+    }
+
+    function setProfile(data){
+      if(!data) return
+      document.getElementById('pname').innerText = data.name || 'Guest'
+      document.getElementById('pphone').innerText = data.phone || 'Registered: -'
+      document.getElementById('prelimit').innerText = data.pre_limit? ('INR '+data.pre_limit):'-'
+      document.getElementById('credit').innerText = data.credit || '-'
+      document.getElementById('city').innerText = data.city || '-'
+      document.getElementById('salary').innerText = data.salary? ('INR '+data.salary):'-'
+      // Avatar initials
+      const avatar = document.querySelector('.avatar')
+      avatar.innerText = (data.name||'G').split(' ').map(s=>s[0]).slice(0,2).join('').toUpperCase()
+    }
+
+    // initial bot message
+    addBubble('Hello! I am your loan assistant. How may I help you today?', 'bot')
+
+    // typing indicator
+    function showTyping(){
+      status.innerHTML = '<span class=\"typing\"><span class=\"dot\"></span><span class=\"dot\"></span><span class=\"dot\"></span></span>'
+    }
+    function hideTyping(){ status.innerHTML = '' }
+
+    async function send(){
+      const v = txt.value.trim()
+      if(!v) return
+      addBubble(v,'user')
+      txt.value=''
+      showTyping()
+      try{
+        const res = await fetch("http://localhost:3000/chat",{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:cid,msg:v})})
+        const j = await res.json()
+        cid = j.id
+        localStorage.setItem('loan_uid',cid)
+        hideTyping()
+        // update profile panel if possible (server doesn't return customer object but we can infer phone saved in sessions)
+        // the backend will ask for mobile number first; so we update only when response greets the user
+        if(j.reply){
+          addBubble(j.reply,'bot')
+          // quick parse: if reply contains 'hi ' and 'i see you live in' try to extract name and city
+          const greetMatch = j.reply.match(/hi\\s+([A-Za-z ]+)!.*i see you live in ([A-Za-z ]+)\\./i)
+          if(greetMatch){
+            setProfile({name: greetMatch[1].trim(), city: greetMatch[2].trim(), phone: 'Registered'})
+          }
+        }
+        // If backend sends a link (e.g. for KYC or PDF)
+if (j.link) {
+  const btn = document.createElement('div');
+  btn.className = 'bubble bot';
+  btn.style.cursor = 'pointer';
+  btn.style.background = 'linear-gradient(90deg,#f97316,#fb7185)';
+  btn.style.color = '#fff';
+  btn.innerText = j.link.includes('.pdf')
+      ? "Download Sanction Letter 📄"
+      : "Complete KYC & Upload Documents";
+
+  btn.onclick = () => window.open(j.link, '_blank');
+
+  chatEl.appendChild(btn);
+  chatEl.scrollTop = chatEl.scrollHeight;
+}
+
+      }catch(e){
+        hideTyping()
+        addBubble('Sorry, network error. Please try again.','bot')
+        console.error(e)
+      }
+    }
+
+    // Quick chips
+    function quick(q){
+      txt.value = q
+      txt.focus()
+    }
+
+    // send on click or enter
+    sendBtn.onclick = send
+    txt.addEventListener('keydown',e=>{ if(e.key==='Enter') send() })
+
+    // keep small helpful hint
+    setTimeout(()=>{
+      const hint = document.createElement('div')
+      hint.className='bubble bot'
+      hint.style.opacity=0.95
+      hint.innerText = 'Tip: Start by entering your registered mobile number.'
+      chatEl.appendChild(hint)
+      chatEl.scrollTop = chatEl.scrollHeight
+    },800)
+
+  </script>
+</body>
+</html>

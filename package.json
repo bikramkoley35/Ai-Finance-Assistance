@@ -1,0 +1,24 @@
+{
+  "name": "loan-assistant-node",
+  "version": "1.0.0",
+  "description": "Local rule-based loan assistant (chatbot) with UI",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@vladmandic/face-api": "^1.7.15",
+    "canvas": "^3.2.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^4.21.2",
+    "face-api.js": "^0.20.0",
+    "multer": "^2.0.2",
+    "mysql": "^2.18.1",
+    "pdfkit": "^0.13.0",
+    "sqlite3": "^5.1.7",
+    "tesseract.js": "^6.0.1",
+    "twilio": "^5.10.4",
+    "uuid": "^9.0.0"
+  }
+}
